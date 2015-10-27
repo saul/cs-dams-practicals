@@ -15,11 +15,14 @@ module Measurement
     end
 
     def count_lines_of_code(method)
-      "?"
+      loc = method.ast.loc
+
+      # subtract end line by start line
+      loc.expression.end.line - loc.line + 1
     end
 
     def count_parameters(method)
-      "?"
+      method.ast.children[1].children.count
     end
   end
 end
