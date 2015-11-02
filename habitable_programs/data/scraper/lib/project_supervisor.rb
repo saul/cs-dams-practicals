@@ -2,6 +2,7 @@
 
 require "nokogiri"
 require "open-uri"
+require_relative "academic"
 
 class ProjectSupervisors
   def run
@@ -13,17 +14,15 @@ class ProjectSupervisors
   private
 
   def academics
-    academics = []
-    rows.each do |r|
+    rows.reduce([]) do |memo, r|
       if r.inner_text.include?('CSE')
         unless r.inner_text.include?('Teaching Staff')
           name = r.css("td.white a").inner_text
-          if r.inner_text.include?("Prof") || r.inner_text.include?("Reader") then position = :professor elsif r.inner_text.include?("Senior") || r.inner_text.include?("Fellow") then position = :senior else position = :lecturer end
-          academics << Academic.new(name: name, position: position)
+          position = name_to_position name
+          memo << Academic.new(name: name, position: position)
         end
       end
     end
-    academics
   end
 
   def rows
@@ -32,50 +31,15 @@ class ProjectSupervisors
     # Select only the rows that describe a person
     doc.css("td.white").map(&:parent)
   end
-end
 
-class Academic
-  attr_reader :name, :position
-
-  def initialize(name:, position:)
-    @name = name
-    @position = position
-  end
-
-  def wisdom
-    if @position == :lecturer
-      sample(1, 5)
-    elsif @position == :senior
-      sample(10, 15)
+  def name_to_position(name)
+    if r.inner_text.include?("Prof") || r.inner_text.include?("Reader") then
+      position = :professor
+    elsif r.inner_text.include?("Senior") || r.inner_text.include?("Fellow") then
+      position = :senior
     else
-      sample(20, 30)
+      position = :lecturer
     end
-  end
-
-  def availability
-    if @position == :lecturer
-      sample(20, 25)
-    elsif @position == :senior
-      sample(15, 20)
-    else
-      sample(1, 10)
-    end
-  end
-
-  def bribe
-    if @position == :lecturer
-      %i(chocolate coffee).sample
-    elsif @position == :senior
-      %i(theatre_tickets cake).sample
-    else
-      %i(truffles champagne).sample
-    end
-  end
-
-  private
-
-  def sample(min, max)
-    (min..max).to_a.sample
   end
 end
 

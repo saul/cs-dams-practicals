@@ -14,25 +14,43 @@ require "nokogiri"
 require "open-uri"
 
 class WhenMulti
+  def find_teaching_data(module_name)
+    begin
+      doc = Nokogiri::HTML(open("https://www.cs.york.ac.uk/undergraduate/modules/#{module_name.downcase}.html"))
+      rows = doc.css("table#ModuleInfo tr")
+      teaching_row = rows.find { |row| row.inner_text.include?("Teaching") }
+
+      teaching_row.at_css("td").inner_text
+    rescue StandardError => e
+      puts "Failed to find teaching data for the module #{module_name}"
+      raise e
+    end
+  end
+
+  def print_module(module_name)
+    teaching_data = find_teaching_data module_name
+
+    autumn = bool_to_yesno teaching_data.include?("Autumn")
+    spring = bool_to_yesno teaching_data.include?("Spring")
+    summer = bool_to_yesno teaching_data.include?("Summer")
+
+    puts "#{module_name} | #{autumn}      | #{spring}      | #{summer}      |"
+  end
+
   def run(*module_names)
     puts "     | Autumn | Spring | Summer |"
     puts "---------------------------------"
-    module_names.each do |module_name|
-      begin
-        doc = Nokogiri::HTML(open("https://www.cs.york.ac.uk/undergraduate/modules/#{module_name.downcase}.html"))
-        rows = doc.css("table#ModuleInfo tr")
-        teaching_row = rows.find { |row| row.inner_text.include?("Teaching") }
-        teaching_data = teaching_row.at_css("td").inner_text
-        autumn = teaching_data.include?("Autumn") ? "y" : "n"
-        spring = teaching_data.include?("Spring") ? "y" : "n"
-        summer = teaching_data.include?("Summer") ? "y" : "n"
-        puts "#{module_name} | #{autumn}      | #{spring}      | #{summer}      |"
-      rescue StandardError => e
-        puts "Failed to find teaching data for the module #{module_name}"
-        raise e
-      end
-    end
+
+    module_names.each { |module_name| print_module module_name }
+  end
+
+  private
+
+  def bool_to_yesno(cond)
+    cond ? 'y' : 'n'
   end
 end
 
-WhenMulti.new.run(*ARGV)
+if __FILE__ == $0
+  WhenMulti.new.run(*ARGV)
+end
