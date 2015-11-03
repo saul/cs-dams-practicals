@@ -12,15 +12,12 @@
 
 require "nokogiri"
 require "open-uri"
+require_relative "util"
 
 class WhenMulti
   def find_teaching_data(module_name)
     begin
-      doc = Nokogiri::HTML(open("https://www.cs.york.ac.uk/undergraduate/modules/#{module_name.downcase}.html"))
-      rows = doc.css("table#ModuleInfo tr")
-      teaching_row = rows.find { |row| row.inner_text.include?("Teaching") }
-
-      teaching_row.at_css("td").inner_text
+      Util.get_table_rows(module_name, 'Teaching')
     rescue StandardError => e
       puts "Failed to find teaching data for the module #{module_name}"
       raise e
@@ -30,10 +27,7 @@ class WhenMulti
   def print_module(module_name)
     teaching_data = find_teaching_data module_name
 
-    autumn = bool_to_yesno teaching_data.include?("Autumn")
-    spring = bool_to_yesno teaching_data.include?("Spring")
-    summer = bool_to_yesno teaching_data.include?("Summer")
-
+    autumn, spring, summer = Util.find_term_names_in_text teaching_data
     puts "#{module_name} | #{autumn}      | #{spring}      | #{summer}      |"
   end
 
@@ -42,12 +36,6 @@ class WhenMulti
     puts "---------------------------------"
 
     module_names.each { |module_name| print_module module_name }
-  end
-
-  private
-
-  def bool_to_yesno(cond)
-    cond ? 'y' : 'n'
   end
 end
 

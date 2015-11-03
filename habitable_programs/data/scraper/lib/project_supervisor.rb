@@ -1,5 +1,3 @@
-# Update...
-
 require "nokogiri"
 require "open-uri"
 require_relative "academic"
@@ -14,15 +12,13 @@ class ProjectSupervisors
   private
 
   def academics
-    rows.reduce([]) do |memo, r|
-      if r.inner_text.include?('CSE')
-        unless r.inner_text.include?('Teaching Staff')
+    rows.select { |r| r.inner_text.include? 'CSE' }
+        .reject { |r| r.inner_text.include? 'Teaching Staff' }
+        .map do |r|
           name = r.css("td.white a").inner_text
           position = name_to_position name
-          memo << Academic.new(name: name, position: position)
+          Academic.new(name: name, position: position)
         end
-      end
-    end
   end
 
   def rows
@@ -33,12 +29,12 @@ class ProjectSupervisors
   end
 
   def name_to_position(name)
-    if r.inner_text.include?("Prof") || r.inner_text.include?("Reader") then
-      position = :professor
-    elsif r.inner_text.include?("Senior") || r.inner_text.include?("Fellow") then
-      position = :senior
+    if name.include?("Prof") || name.include?("Reader")
+      :professor
+    elsif name.include?("Senior") || name.include?("Fellow")
+      :senior
     else
-      position = :lecturer
+      :lecturer
     end
   end
 end
