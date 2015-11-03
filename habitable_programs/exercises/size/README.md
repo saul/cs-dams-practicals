@@ -18,19 +18,19 @@ The sample projects in the `data` folder can be used to test the size tool. If y
 
 ### Measuring files
 
-Starting with the `FileMeasurer` class (in `lib/measurement/file_measurer.rb`), implement the metrics below.
+Starting with the `FileMeasurer` class (in `./lib/measurement/file_measurer.rb`), implement the metrics below.
 
 * Lines of code per source file.
 * Number of modules per source file.
 * Number of classes per source file.
 
-Note that each of the methods named `count_XXX` receive a file object. This is an instance of `Subjects::SourceFile` (in `lib/subjects/source_file.rb`). `SourceFile` provides two methods that you will need: `source` returns the file's source code and `ast` returns the file's Abstract Syntax Tree. You'll also want to make use of the parser gem's `Parser::AST::Processor` class. For a recap on Abstract Syntax Trees and `Parser::AST::Processor`, see the DAMS lecture on the Ruby Parser.
+Note that each of the methods named `count_XXX` receive a file object. This is an instance of `Subjects::SourceFile` (in `../common/lib/subjects/source_file.rb`). `SourceFile` provides two methods that you will need: `source` returns the file's source code and `ast` returns the file's Abstract Syntax Tree. You'll also want to make use of the parser gem's `Parser::AST::Processor` class. For a recap on Abstract Syntax Trees and `Parser::AST::Processor`, see the DAMS lecture on the Ruby Parser.
 
 Test your implementation on the `hello_world` project by running `vado size files hello_world`. The expected results are:
 
 | Subject        | lines_of_code | number_of_modules | number_of_classes |
 | :------------- | :------------ | :---------------- | :---------------- |
-| hello_world.rb | 13            | 0                 | 1                 |
+| hello_world.rb | 14           | 0                 | 1                 |
 
 For a more thorough test of your implementation, try the `adamantium` sample project by running: `vado size files adamantium`. The expected results are:
 
@@ -46,14 +46,14 @@ For a more thorough test of your implementation, try the `adamantium` sample pro
 
 ### Measuring classes
 
-Next, extend `ClassMeasurer` (in `lib/measurement/class_measurer.rb`) to implement the metrics below.
+Next, extend `ClassMeasurer` (in `./lib/measurement/class_measurer.rb`) to implement the metrics below.
 
 * Lines of code per class.
 * Number of methods per class.
 * Number of class methods per class.
 * Number of attributes per class.
 
-Note that each of the methods named `count_XXX` receive a class object. This is an instance of `Subjects::Class` (in `common/lib/subjects/class.rb`) and, just like `SourceFile`, provides `source` and `ast` methods which you'll want to use.
+Note that each of the methods named `count_XXX` receive a class object. This is an instance of `Subjects::Class` (in `../common/lib/subjects/class.rb`) and, just like `SourceFile`, provides `source` and `ast` methods which you'll want to use.
 
 Implementing the first 3 metrics will likely lead to code that is very similar to the metrics you have implemented in `FileMeasurer`. For the final metric (counting attributes), the implementation will require a bit more thought. Consider the following examples:
 
@@ -83,34 +83,34 @@ end
 
 And here, it appears that there are no attributes (instance variables) at first glance. However, recall that `attr_accessor` (and `attr_reader` and `attr_writer`) are Ruby shorthands for defining attributes (along with getter and/or setter methods). For this program, name is an instance variable and our attribute counter should return a count of 1.
 
-Test your implementation on the `hello_world` project by running `vado size files hello_world`. The expected results are:
+Test your implementation on the `hello_world` project by running `vado size classes hello_world`. The expected results are:
 
-| Subject                   | lines_of_code | number_of_methods | number_of_class_methods | number_of_attribtutes |
-| :------------------------ | :------------ | :---------------- | :---------------------- | :-------------------- |
-| hello_world.rb#HelloWorld | 11            | 2                 | 0                       | 1                     |
+| Subject                   | lines_of_code | number_of_methods | number_of_class_methods | number_of_attributes |
+| :------------------------ | :------------ | :---------------- | :---------------------- | :------------------- |
+| hello_world.rb#HelloWorld | 11            | 2                 | 0                       | 1                    |
 
 
-For a more thorough test of your implementation, try the `adamantium` sample project by running: `vado size files adamantium`. The expected results are:
+For a more thorough test of your implementation, try the `adamantium` sample project by running: `vado size classes adamantium`. The expected results are:
 
-| Subject                                   | lines_of_code | number_of_methods | number_of_class_methods | number_of_attribtutes |
-| :---------------------------------------- | :------------ | :---------------- | :---------------------- | :-------------------- |
-| adamantium/freezer.rb#Flat                | 15            | 0                 | 1                       | 0                     |
-| adamantium/freezer.rb#Deep                | 15            | 0                 | 1                       | 0                     |
-| adamantium/freezer.rb#UnknownFreezerError | 1             | 0                 | 0                       | 0                     |
-| adamantium/freezer.rb#OptionError         | 1             | 0                 | 0                       | 0                     |
-| adamantium/freezer.rb#Freezer             | 128           | 0                 | 6                       | 1                     |
+| Subject                                   | lines_of_code | number_of_methods | number_of_class_methods | number_of_attributes |
+| :---------------------------------------- | :------------ | :---------------- | :---------------------- | :------------------- |
+| adamantium/freezer.rb#Flat                | 15            | 0                 | 1                       | 0                    |
+| adamantium/freezer.rb#Deep                | 15            | 0                 | 1                       | 0                    |
+| adamantium/freezer.rb#UnknownFreezerError | 1             | 0                 | 0                       | 0                    |
+| adamantium/freezer.rb#OptionError         | 1             | 0                 | 0                       | 0                    |
+| adamantium/freezer.rb#Freezer             | 128           | 0                 | 6                       | 1                    |
 
 
 ### Measuring methods
 
-Finally, extend MethodMeasurer (in `lib/measurement/method_measurer.rb` to implement the metrics below.
+Finally, extend MethodMeasurer (in `./lib/measurement/method_measurer.rb` to implement the metrics below.
 
 * Lines of code per method.
 * Number of parameters per method.
 
-Note that each of the methods named `count_XXX` receive a method object (an instance of `lib/subjects/method.rb`).
+Note that each of the methods named `count_XXX` receive a method object (an instance of `../common/lib/subjects/method.rb`).
 
-Test your implementation on the `hello_world` project by running `vado size files hello_world`. The expected results are:
+Test your implementation on the `hello_world` project by running `vado size methods hello_world`. The expected results are:
 
 | Subject                   | lines_of_code | number_of_parameters |
 | :------------------------ | :------------ | :------------------- |
@@ -118,7 +118,7 @@ Test your implementation on the `hello_world` project by running `vado size file
 | hello_world.rb#run        | 3             | 0                    |
 
 
-For a more thorough test of your implementation, try the `adamantium` sample project by running: `vado size files adamantium`. The expected results are:
+For a more thorough test of your implementation, try the `adamantium` sample project by running: `vado size methods adamantium`. The expected results are:
 
 | Subject                                     | lines_of_code | number_of_parameters |
 | :------------------------------------------ | :------------ | :------------------- |
