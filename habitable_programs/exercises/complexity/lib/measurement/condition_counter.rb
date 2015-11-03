@@ -35,5 +35,10 @@ module Measurement
       super node
       increment
     end
+
+    def on_rescue(node)
+      super node
+      increment
+    end
   end
 end
