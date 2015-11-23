@@ -17,7 +17,7 @@ module Subjects
     # Returns a Ruby Parser AST that represents all of the code
     # in this source file
     def ast
-      Parser::CurrentRuby.parse(contents)
+      Parser::CurrentRuby.parse(contents, @path)
     end
 
     # Returns an instance of Subjects::Source that contains
