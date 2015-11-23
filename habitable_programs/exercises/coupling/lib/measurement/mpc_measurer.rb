@@ -10,9 +10,9 @@ module Measurement
     def measurements_for(method)
       messages = messages_for(method)
 
-      total = messages.size
-      to_self = 0
-      to_ancestors = 0
+      total = messages.total
+      to_self = messages.counts[:to_self]
+      to_ancestors = messages.counts[:to_ancestors]
       mpc = total - (to_self + to_ancestors)
 
       {
@@ -26,20 +26,37 @@ module Measurement
     def messages_for(method)
       finder = MessageFinder.new
       finder.process(method.ast)
-      finder.messages
+      finder
     end
   end
 
   class MessageFinder < Parser::AST::Processor
-    attr_reader :count
+    attr_reader :counts
+
+    def initialize
+      @counts = {
+          other: 0,
+          to_self: 0,
+          to_ancestors: 0
+      }
+    end
 
     def on_send(ast)
       super
-      messages << ast
+
+      obj = ast.children[0]
+
+      if obj.nil?
+        @counts[:to_self] += 1
+      elsif obj.type == :zsuper
+        @counts[:to_ancestors] += 1
+      else
+        @counts[:other] += 1
+      end
     end
 
-    def messages
-      @messages ||= []
+    def total
+      @counts[:other] + @counts[:to_self] + @counts[:to_ancestors]
     end
   end
 end
