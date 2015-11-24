@@ -40,6 +40,21 @@ module Measurement
       super if ast == @root
     end
 
+    def on_send(ast)
+      return unless ast.children[0].nil?
+      return unless ast.children[1] == :sym
+
+      # extract the method name
+      access_type = ast.children[1] == :attr_reader
+
+      reader_dependent = ast.children[1].children[0]
+      writer_dependent = "#{reader_dependent}=".to_sym
+      dependee = "@#{reader_dependent}".to_sym
+
+      dependencies.add(reader_dependent, dependee) if [:attr_reader, :attr_accessor].include? access_type
+      dependencies.add(writer_dependent, dependee) if [:attr_writer, :attr_accessor].include? access_type
+    end
+
     def on_def(ast)
       method = ast.children[0]
       return if method == :initialize
@@ -48,14 +63,6 @@ module Measurement
       method_processor.process(ast)
 
       dependencies.add_all(method, method_processor.messages)
-
-      method_processor.ivars.each do |ivar|
-        # add dependencies between methods that use one or more of the same instance variables
-        other_methods = ivar_dependencies(ivar)
-        other_methods.each { |other| dependencies.add(method, other) }
-
-        other_methods << method
-      end
 
       super
     end
@@ -76,16 +83,14 @@ module Measurement
       if obj.nil?
         messages << message
       elsif obj.type == :ivar
-        ivars << obj.children[0]
+        messages << obj.children[0]
+      else
+        super
       end
     end
 
     def messages
       @messages ||= []
-    end
-
-    def ivars
-      @ivars ||= []
     end
   end
 end
