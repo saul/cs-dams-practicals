@@ -67,10 +67,6 @@ module Measurement
       super
     end
 
-    def ivar_dependencies(ivar)
-      @ivars[ivar] ||= []
-    end
-
     def dependencies
       @dependencies ||= DependencyGraph.new
     end
