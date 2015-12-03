@@ -71,7 +71,7 @@ module Detection
           hash_node(node_hashes, child_node)
         end
 
-        if node.children.length > 1 and not [:const, :send, :args].include? node.type
+        if node.children.length > 1 and not [:const, :send, :args, :pair, :hash].include? node.type
           node_hashes[node.hash] = node_hashes.fetch(node.hash, []) << node
         end
       end
