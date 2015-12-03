@@ -1,4 +1,5 @@
 require_relative "subject"
+require "unparser"
 
 module Subjects
   class Method < Subject
@@ -18,7 +19,13 @@ module Subjects
     end
 
     def method_name
-      ast.children.first.to_s
+      name_node = ast.children.first
+
+      if name_node.is_a? Symbol
+        name_node
+      else
+        Unparser.unparse name_node
+      end
     end
   end
 end
