@@ -5,8 +5,9 @@ module Measurement
   class Measurer
     attr_accessor :subjects
 
-    def initialize(root)
+    def initialize(root, formatter:Tsv.new)
       @subjects = locator.find_subjects_in(Subjects::Project.new(root))
+      @formatter = formatter
     end
 
     def locator
@@ -14,10 +15,9 @@ module Measurement
     end
 
     def run
-      results = Table.new
-      results.add_row(measured_subjects.first.descriptions) # header
-      results.add_rows(measured_subjects.map(&:values)) # body
-      puts results
+      @formatter.add_row(measured_subjects.first.descriptions) # header
+      @formatter.add_rows(measured_subjects.map(&:values)) # body
+      puts @formatter
     end
 
     def measured_subjects
@@ -29,7 +29,7 @@ module Measurement
     end
   end
 
-  class Table
+  class Formatter
     def initialize
       @rows = []
     end
@@ -45,6 +45,18 @@ module Measurement
     def to_s
       @rows.map { |r| row_to_s(r) }.join("\n")
     end
+  end
+
+  class Tsv < Formatter
+    private
+
+    def row_to_s(cells)
+      cells.map(&:to_s).join "\t"
+    end
+  end
+
+  class Table < Formatter
+    private
 
     def row_to_s(cells)
       "| " + cells.each_with_index.map { |cell, index| cell_to_s(cell, index) }.join(" | ") + " |"
