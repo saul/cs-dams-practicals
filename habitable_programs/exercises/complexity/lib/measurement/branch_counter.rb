@@ -5,7 +5,7 @@ module Measurement
     def on_send(node)
       super node
 
-      unless node.children.first.nil? or [:==, :!=, :<=, :>=, :<, :>].include? node.children[1]
+      unless [nil, :self].include? node.children.first or [:==, :!=, :<=, :>=, :<, :>].include? node.children[1]
         increment
       end
     end
