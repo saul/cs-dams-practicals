@@ -99,11 +99,16 @@ module Detection
       end
 
       duplicates.each do |hash, clones|
-        puts "\nDuplication of hash #{hash}:"
+        first_clone = clones[0]
+        puts "\n> Duplicated `#{first_clone.type}` node with #{first_clone.children.length} children (#{hash})"
 
         clones.each do |cloned_node|
-          puts " #{cloned_node.type} (#{cloned_node.children.length}):"
-          puts "  #{Unparser.unparse cloned_node.original}\n---"
+          puts "\n at #{cloned_node.original.location.expression}:"
+
+          # add spaces to indent correctly
+          node_text = Unparser.unparse(cloned_node.original).split("\n").join("\n  ")
+
+          puts "  #{node_text}"
         end
       end
     end
